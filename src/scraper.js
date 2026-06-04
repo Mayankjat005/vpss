@@ -55,7 +55,6 @@ function spoofedFetch(urlStr, options = {}) {
       honorCipherOrder: true,
       minVersion: "TLSv1.2",
       maxVersion: "TLSv1.3",
-      secureProtocol: "TLS_method",
       servername: url.hostname
     };
 
