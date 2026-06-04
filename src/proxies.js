@@ -23,7 +23,7 @@ function getProxyAgent(proxyUrl) {
       keepAlive: true,
       maxSockets: 50,
       maxFreeSockets: 10,
-      timeout: 10000 // 10s socket timeout
+      timeout: 3000 // 3s socket timeout (fast failover)
     });
   }
   return agentPool[proxyUrl];
