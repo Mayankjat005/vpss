@@ -59,10 +59,13 @@ function spoofedFetch(urlStr, options = {}) {
       servername: url.hostname
     };
 
+    let reqTimeout;
+
     const req = https.request(reqOptions, (res) => {
       let data = [];
       res.on("data", (chunk) => data.push(chunk));
       res.on("end", () => {
+        clearTimeout(reqTimeout);
         const body = Buffer.concat(data).toString("utf8");
         resolve({
           ok: res.statusCode >= 200 && res.statusCode < 300,
@@ -71,21 +74,22 @@ function spoofedFetch(urlStr, options = {}) {
           text: () => Promise.resolve(body)
         });
       });
+      res.on("error", (err) => {
+        clearTimeout(reqTimeout);
+        reject(err);
+      });
     });
 
     req.on("error", (err) => {
+      clearTimeout(reqTimeout);
       reject(err);
     });
 
     // Hard timeout so a dead proxy never freezes the VPS server
-    const reqTimeout = setTimeout(() => {
+    reqTimeout = setTimeout(() => {
       req.destroy();
       reject(new Error("Request timed out (Proxy might be dead)"));
     }, 4500);
-
-    req.on('close', () => {
-      clearTimeout(reqTimeout);
-    });
 
     req.end();
   });
